@@ -22,8 +22,24 @@ To implement:
 #include <stdlib.h>
 #include <time.h> // if seed dependend in time
 
+
+const char ALPHALOWER[] = "abcdefghijklmnopqrstuvwxyz";
+const char ALPHAUPPER[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const char NUMBER[]     = "0123456789";
+const char SPECIAL[]    = "!@#$%*=+?~";
+const int MAXCHARSETLENGTH = 72;
+const int MAXPWLENGTH   = 200;
+
+char *generate(int length, char char_set[]);
+void put (char str[], int len);
+
 int main(int argc, char *argv[]) { 
-  int i, returnValue;
+  // Declare and initialize 
+  int i;
+  int returnValue = 0;
+  int pwLength = 13; // Password length, default 13.
+  int seed = time(NULL); // Seed for random generator, default taken from system time.
+
   if( argc >= 2 ) {
     // printf("The arguments supplied are:\n");
     for(i = 1; i < argc; i++) {
@@ -36,39 +52,41 @@ int main(int argc, char *argv[]) {
       returnValue=0;
   }
 
-  const char ALPHALOWER[] = "abcdefghijklmnopqrstuvwxyz";
-  const char ALPHAUPPER[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  const char NUMBER[]     = "0123456789";
-  const char SPECIAL[]    = "!@#$%*=+?~";
-  int pwLength = 13;
-  const int MAXPWLENGTH = 200;
-  char pw[MAXPWLENGTH];
-  char pool[72]; // 26+26+10+10
-  int seed = time(NULL);
-  int r;
-
   srand(seed); // Initalize the random number generator.
+
+  char pool[MAXCHARSETLENGTH]; 
   strcpy(pool,ALPHALOWER);
   strcat(pool,ALPHAUPPER);
   strcat(pool,NUMBER);
   strcat(pool,SPECIAL);
-  int l = strlen(pool);
-   printf("Pool = %s; length = %i\n", pool, l);
 
-  for (i = 0; i < pwLength; i = i + 1) {
-    r = rand() % l; // Return random number between 0 and 25?
-    // printf("i = %i ; r = %i -> %c\n", i, r, pool[r]);
-    pw[i] = pool[r];
-  }
+  // printf("%s\n", generate(pwLength, pool));
 
-  for (i = 0; i < pwLength; i = i + 1) {
-    printf("%c", pw[i]);
-  }
-  printf("\n"); 
+  char *pw=generate(pwLength, pool);
+  put(pw, pwLength);
 
-  // printf("%s\n", pw);
-  // printf("%s", pw);
   return returnValue;
 } 
 
+char *generate(int length, char charSet[]) {
+  int i, r;
+  // char password[length];
+  int charSetLen = strlen(charSet);
+  char *password = calloc(length, sizeof(char));  // allocate memory from the heap
 
+  for (i = 0; i < length; i = i + 1) {
+    r = rand() % charSetLen; // Return random number between 0 and 25?
+    // printf("i = %i ; r = %i -> %c\n", i, r, pool[r]);
+    password[i] = charSet[r];
+  }
+  return(password);
+}
+
+void put (char str[], int len) {
+  int i;
+
+  for (i = 0; i < len; i = i + 1) {
+    printf("%c", str[i]);
+  }
+  printf("\n"); 
+}
